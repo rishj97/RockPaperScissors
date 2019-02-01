@@ -1,0 +1,18 @@
+{
+  "name": "rock-paper-scissors",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle.js",
+  "directories": {},
+  "scripts": {
+    "dev": "lite-server"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "js-sha3": "^0.8.0",
+    "lite-server": "^2.4.0",
+    "truffle": "5.0.0-beta.0"
+  },
+  "dependencies": {}
+}

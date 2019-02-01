@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Rock-paper-scissors</title>
+  </head>
+  <body>
+    <form onSubmit="App.attack(); return false;">
+      <div class="form-group">
+        <label for="weaponSelect">Select weapon</label>
+        <select class="form-control" id="weaponSelect">
+          <option value="rock">Rock</option>
+          <option value="paper">Paper</option>
+          <option value="scissors">Scissors</option>
+        </select>
+      </div>
+      Private Key: <input type="text" id="privateKey">
+      <button type="submit" class="btn btn-primary">Attack</button>
+      <hr />
+    </form>
+    <form onSubmit="App.registerPlayer1(); return false;">
+      <button type="submit" class="btn btn-primary">Register Player 1</button>
+      <hr />
+    </form>
+    <form onSubmit="App.registerPlayer2(); return false;">
+      <button type="submit" class="btn btn-primary">Register Player 2</button>
+      <hr />
+    </form>
+    <form onSubmit="App.getWinner(); return false;">
+      <button type="submit" class="btn btn-primary">Get winner</button>
+      <hr />
+    </form>
+    <form onSubmit="App.reveal(); return false;">
+      <button type="submit" class="btn btn-primary">Reveal weapon</button>
+      <hr />
+    </form>
+    <div id="registry"></div>
+    <div id="winner"></div>
+    <div id="registryStatus"></div>
+    <div id="attackStatus"></div>
+    <div id="revealStatus"></div>
+    <div id="Notice">NOTE: Don't reveal until both players have attacked!</div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/web3.min.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/sha3.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
