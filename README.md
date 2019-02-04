@@ -1,5 +1,7 @@
+![Camera movement](/app.png)
+
 # RockPaperScissors
-Smart contract based "Rock, paper scissors" application
+Smart contract based "Rock, paper scissors" application.
 
 Follow the steps below to download, install, and run this application.
 
