@@ -1,6 +1,8 @@
 App = {
   web3Provider: null,
   contracts: {},
+  registrationEther: 1e18,
+  registrationGas:3e6,
   init: function() {
     return App.initWeb3();
   },
@@ -49,136 +51,38 @@ App = {
     });
 
     App.contracts.RPS.deployed().then(function(instance) {
-      instance.ChosenWeaponHash().watch(function(error, event) {
-        console.log("Chosen weapon hash!", event)
+      instance.Winner().watch(function(error, event) {
+        console.log("Winner event!", event);
+        App.winnerStatusRecv(event.args.winner.c[0]);
         App.render();
       });
     });
   },
 
-  p1Hash: function() {
-    App.contracts.RPS.deployed().then(function(instance) {
-      return instance.player1WeaponHash();
-    }).then(function(result) {
-      console.log(result);
-    }).catch(function(err) {
-      console.error(err);
-    });
-  },
-
   render: function() {
-    App.contracts.RPS.deployed().then(function(instance) {
-      return instance.isRegistered();
-    }).then(function(result) {
-      var status = "";
-      switch (result.c[0]) {
-        case 0:
-          status = "You are not registered!";
-          break;
-        case 1:
-          status = "Registered as player 1";
-          break;
-        case 2:
-          status = "Registered as player 2";
-          break;
-        default:
-          status = "Invalid registration status!";
-      }
-      var registry = document.getElementById("registry");
-      registry.innerText = status;
-    }).catch(function(err) {
-      console.error(err);
-    });
+    App.getPlayerRegistryStatus();
 
-    App.contracts.RPS.deployed().then(function(instance) {
-      return instance.registryStatus();
-    }).then(function(result) {
-      var status = "";
-      switch (result.c[0]) {
-        case 0:
-          status = "No one registered";
-          break;
-        case 1:
-          status = "Only player 1 registered";
-          break;
-        case 2:
-          status = "Only player 2 registered";
-          break;
-        case 3:
-          status = "Both players registered";
-          break;
-        default:
-          status = "Invalid registration status!";
-      }
-      var statusHtml = document.getElementById("registryStatus");
-      statusHtml.innerText = status;
-    }).catch(function(err) {
-      console.error(err);
-    });
+    App.getRegistryStatus();
 
-    App.contracts.RPS.deployed().then(function(instance) {
-      return instance.attackStatus();
-    }).then(function(result) {
-      var status = "";
-      switch (result.c[0]) {
-        case 0:
-          status = "No one attacked";
-          break;
-        case 1:
-          status = "Only player 1 attacked";
-          break;
-        case 2:
-          status = "Only player 2 attacked";
-          break;
-        case 3:
-          status = "Both players attacked";
-          break;
-        default:
-          status = "Invalid attack status!";
-      }
-      var statusHtml = document.getElementById("attackStatus");
-      statusHtml.innerText = status;
-    }).catch(function(err) {
-      console.error(err);
-    });
+    App.getAttackStatus();
+    App.getCanAttackStatus();
 
-    App.contracts.RPS.deployed().then(function(instance) {
-      return instance.revealStatus();
-    }).then(function(result) {
-      var status = "";
-      switch (result.c[0]) {
-        case 0:
-          status = "No one revealed";
-          break;
-        case 1:
-          status = "Only player 1 revealed";
-          break;
-        case 2:
-          status = "Only player 2 revealed";
-          break;
-        case 3:
-          status = "Both players revealed";
-          break;
-        default:
-          status = "Invalid revealed status!";
-      }
-      var statusHtml = document.getElementById("revealStatus");
-      statusHtml.innerText = status;
-    }).catch(function(err) {
-      console.error(err);
-    });
+    App.getRevealStatus();
+    App.getCanRevealStatus();
+
+    App.getCanGetWinnerStatus();
   },
 
   attack: function() {
-    var weaponSelected = $('#weaponSelect').val();
+    var weaponSelected = App.selectedWeapon;
     var privateKey = $('#privateKey').val();
     var weaponHash = '0x' + keccak256(weaponSelected + privateKey);
     var weaponHashStr = new String(weaponHash);
     App.contracts.RPS.deployed().then(function(instance) {
-      return instance.chosenWeaponHash(weaponHash.valueOf());
+      return instance.attack(weaponHash.valueOf());
     }).then(function(result) {
-      // App.render();
-      location.reload();
+      App.render();
+      // location.reload();
     }).catch(function(err) {
       console.error(err);
     });
@@ -186,12 +90,11 @@ App = {
 
   reveal: function() {
     App.contracts.RPS.deployed().then(function(instance) {
-      var weaponSelected = $('#weaponSelect').val();
+      var weaponSelected = App.selectedWeapon;
       var privateKey = $('#privateKey').val();
       return instance.revealChosenWeapon(weaponSelected, privateKey);
     }).then(function(result) {
-      // App.render();
-      location.reload();
+      App.render();
     }).catch(function(err) {
       console.error(err);
     });
@@ -199,10 +102,9 @@ App = {
 
   registerPlayer1: function() {
     App.contracts.RPS.deployed().then(function(instance) {
-      return instance.setPlayer1();
+      return instance.setPlayer1({from: web3.eth.accounts[0], gas: App.registrationGas, value: App.registrationEther});
     }).then(function(result) {
-      // App.render();
-      location.reload();
+      App.render();
     }).catch(function(err) {
       console.error(err);
     });
@@ -210,10 +112,9 @@ App = {
 
   registerPlayer2: function() {
     App.contracts.RPS.deployed().then(function(instance) {
-      return instance.setPlayer2();
+      return instance.setPlayer2({from: web3.eth.accounts[0], gas: App.registrationGas, value: App.registrationEther});
     }).then(function(result) {
-      // App.render();
-      location.reload();
+      App.render();
     }).catch(function(err) {
       console.error(err);
     });
@@ -222,12 +123,151 @@ App = {
   getWinner: function() {
     App.contracts.RPS.deployed().then(function(instance) {
       return instance.getWinner();
-    }).then(function(winner) {
-      var winnerHTML = document.getElementById("winner");
-      winnerHTML.innerText = "Winner is: " + winner;
     }).catch(function(err) {
       console.error(err);
     });
+  },
+
+  winnerStatusRecv: function(winner) {
+    var msg = "";
+    if (winner == 0) {
+      msg = "Its a draw!";
+    } else {
+      msg = "Player " + winner + " won!!";
+    }
+    var winnerHTML = document.getElementById("winner");
+    winnerHTML.innerText = msg;
+    alert(msg);
+  },
+
+  getRegistryStatus: function() {
+    App.contracts.RPS.deployed().then(function(instance) {
+      return instance.registryStatus();
+    }).then(function(result) {
+      App.registryStatusRecv(result.c[0]);
+    }).catch(function(err) {
+      console.error(err);
+    });
+  },
+
+  registryStatusRecv: function(returnedStatus) {
+    var status = getStatusMsg(returnedStatus, "Registered by:");
+    var statusHtml = document.getElementById("registryStatus");
+    statusHtml.innerText = status;
+  },
+
+  getPlayerRegistryStatus: function() {
+    App.contracts.RPS.deployed().then(function(instance) {
+      return instance.isRegistered();
+    }).then(function(result) {
+      App.playerRegistryStatusRecv(result.c[0]);
+    }).catch(function(err) {
+      console.error(err);
+    });
+  },
+
+  playerRegistryStatusRecv: function(returnedStatus) {
+    if (returnedStatus == 1 || returnedStatus == 2) {
+      var btn = document.getElementById("p1btn");
+      btn.disabled = true;
+      btn = document.getElementById("p2btn");
+      btn.disabled = true;
+    }
+    var status = getStatusMsg(returnedStatus, "You are registered as:")
+    var registry = document.getElementById("registry");
+    registry.innerText = status;
+  },
+
+  getAttackStatus: function() {
+    App.contracts.RPS.deployed().then(function(instance) {
+      return instance.attackStatus();
+    }).then(function(result) {
+      App.attackStatusRecv(result.c[0]);
+    }).catch(function(err) {
+      console.error(err);
+    });
+  },
+
+  attackStatusRecv: function(returnedStatus) {
+    var status = getStatusMsg(returnedStatus, "Attacked by:");
+    var statusHtml = document.getElementById("attackStatus");
+    statusHtml.innerText = status;
+  },
+
+
+  getCanAttackStatus: function() {
+    App.contracts.RPS.deployed().then(function(instance) {
+      return instance.canAttack();
+    }).then(function(result) {
+      App.canAttackRecv(result);
+    }).catch(function(err) {
+      console.error(err);
+    });
+  },
+
+  canAttackRecv: function(returnedStatus) {
+    var btn = document.getElementById("attackBtn");
+    btn.disabled = !returnedStatus;
+  },
+
+
+  getCanRevealStatus: function() {
+    App.contracts.RPS.deployed().then(function(instance) {
+      return instance.canReveal();
+    }).then(function(result) {
+      App.canRevealRecv(result);
+    }).catch(function(err) {
+      console.error(err);
+    });
+  },
+
+  canRevealRecv: function(returnedStatus) {
+    var btn = document.getElementById("revealBtn");
+    btn.disabled = !returnedStatus;
+  },
+
+
+  getCanGetWinnerStatus: function() {
+    App.contracts.RPS.deployed().then(function(instance) {
+      return instance.canGetWinner();
+    }).then(function(result) {
+      App.canGetWinnerRecv(result);
+    }).catch(function(err) {
+      console.error(err);
+    });
+  },
+
+  canGetWinnerRecv: function(returnedStatus) {
+    var btn = document.getElementById("winnerBtn");
+    btn.disabled = !returnedStatus;
+  },
+
+  getRevealStatus: function() {
+    App.contracts.RPS.deployed().then(function(instance) {
+      return instance.revealStatus();
+    }).then(function(result) {
+      App.revealStatusRecv(result.c[0]);
+    }).catch(function(err) {
+      console.error(err);
+    });
+  },
+
+  revealStatusRecv: function(returnedStatus) {
+    var status = getStatusMsg(returnedStatus, "Revealed by:");
+    var statusHtml = document.getElementById("revealStatus");
+    statusHtml.innerText = status;
+  },
+
+  deselectAllWeapons: function() {
+    document.getElementById("rock").style.webkitBoxShadow='';
+    document.getElementById("paper").style.webkitBoxShadow='';
+    document.getElementById("scissors").style.webkitBoxShadow='';
+  },
+
+  selectWeapon: function(weapon) {
+    App.deselectAllWeapons();
+    document.getElementById(weapon).style.webkitBoxShadow='0px 0px 15px 5px rgba(255, 0, 0, 0.5)';
+    App.selectedWeapon = weapon;
   }
 };
 $(function() {
@@ -236,6 +276,23 @@ $(function() {
   });
 });
 
-// 0x0000000000000000000000000000000000000000000000000000000000000001617364617364
-// "1"
-// "asdasd"
+function getStatusMsg(returnedStatus, type) {
+  var status = "";
+  switch (returnedStatus) {
+    case 0:
+      status = "no one";
+      break;
+    case 1:
+      status = "player 1";
+      break;
+    case 2:
+      status = "player 2";
+      break;
+    case 3:
+      status = "both players";
+      break;
+    default:
+      status = "!!invalid status!!";
+  }
+  return type + " " + status;
+}

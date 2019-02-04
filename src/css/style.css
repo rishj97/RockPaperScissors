@@ -1,0 +1,41 @@
+body {
+  background-color: #F0FFF0;
+  text-align: center;
+  font-family: 'Cabin', monospace;
+}
+
+body h1 {
+  font-size: 42px;
+  text-shadow: 2px 2px #bfbfbf;
+  padding-bottom: 50px;
+}
+
+#instruction {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+img {
+  margin: 10px 5px;
+  padding: 30px;
+
+  /*transition code*/
+  transition: all 0.75s ease-in-out;
+  -webkit-transition: all 0.75s ease-in-out;
+  -moz-trasition: all 0.75s ease-in-out;
+  -o-transition: all 0.75 ease-in-out;
+}
+
+img:hover {
+  transform: scale(1.5);
+}
+
+.container {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-height: 500px;
+}
+/* .github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}} */
