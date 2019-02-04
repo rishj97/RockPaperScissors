@@ -8,7 +8,6 @@ App = {
   },
 
   initWeb3: function() {
-    // TODO: refactor conditional
     if (typeof web3 !== 'undefined') {
       // If a web3 instance is already provided by Meta Mask.
       App.web3Provider = web3.currentProvider;
@@ -38,7 +37,7 @@ App = {
   listenForEvents: function() {
     App.contracts.RPS.deployed().then(function(instance) {
       instance.WrongReveal().watch(function(error, event) {
-        console.log("wrong weapon revealed!", event)
+        console.log("Wrong weapon revealed!", event)
         App.render();
       });
     });
