@@ -1,10 +1,10 @@
 # RockPaperScissors
 Smart contract based "Rock, paper scissors" application
 
-Follow the steps below to download, install, and run this project.
+Follow the steps below to download, install, and run this application.
 
 ## Dependencies
-Install these prerequisites to follow along with the tutorial. See free video tutorial or a full explanation of each prerequisite.
+Install these prerequisites.
 - NPM: https://nodejs.org
 - Truffle: https://github.com/trufflesuite/truffle
 - Ganache: http://truffleframework.com/ganache/
