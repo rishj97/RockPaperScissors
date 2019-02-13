@@ -81,7 +81,6 @@ App = {
       return instance.attack(weaponHash.valueOf());
     }).then(function(result) {
       App.render();
-      // location.reload();
     }).catch(function(err) {
       console.error(err);
     });
